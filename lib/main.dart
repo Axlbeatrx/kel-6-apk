@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'screens/login_screen.dart'; // Pastikan path ini benar
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'RESTful API KEL 6',
+      debugShowCheckedModeBanner: false,
+      title: 'RESTful API Kel 6',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: LoginScreen(),
+      home: LoginPage(
+        // Ganti LoginScreen dengan LoginPage
+        isDarkMode: false,
+        toggleTheme: () {}, // Tambahkan toggleTheme jika dibutuhkan
+      ),
     );
   }
 }

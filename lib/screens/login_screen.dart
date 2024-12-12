@@ -3,92 +3,173 @@ import '../api/api_service.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
 
-class LoginScreen extends StatelessWidget {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+void main() {
+  runApp(const MyApp());
+}
 
-  void login(BuildContext context) async {
-    final response = await ApiService.loginUser(
-      emailController.text,
-      passwordController.text,
-    );
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
 
-    if (response.containsKey("id")) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => HomeScreen(userId: response['id'])),
-      );
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(response['message'])));
-    }
-  }
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool isDarkMode = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            'assets/background-galang.jpg', // Ganti dengan path gambar yang diinginkan
-            fit: BoxFit.cover,
-          ),
-          Center(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Card(
-                  elevation: 8.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Login",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        TextField(
-                          controller: emailController,
-                          decoration: InputDecoration(labelText: "Email"),
-                        ),
-                        TextField(
-                          controller: passwordController,
-                          decoration: InputDecoration(labelText: "Password"),
-                          obscureText: true,
-                        ),
-                        SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () => login(context),
-                          child: Text("Login"),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => RegisterScreen()),
-                            );
-                          },
-                          child: Text("Don't have an account? Register here."),
-                        ),
-                      ],
-                    ),
-                  ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: isDarkMode
+          ? ThemeData.dark().copyWith(
+              primaryColor: Colors.deepPurple,
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                ),
+              ),
+            )
+          : ThemeData.light().copyWith(
+              primaryColor: Colors.deepPurple,
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
                 ),
               ),
             ),
+      home: LoginPage(
+        isDarkMode: isDarkMode,
+        toggleTheme: toggleTheme,
+      ),
+    );
+  }
+
+  void toggleTheme() {
+    setState(() {
+      isDarkMode = !isDarkMode; // Mengubah state tema
+    });
+  }
+}
+
+class LoginPage extends StatelessWidget {
+  final bool isDarkMode;
+  final VoidCallback toggleTheme;
+
+  const LoginPage({
+    Key? key,
+    required this.isDarkMode,
+    required this.toggleTheme,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+
+    void login(BuildContext context) async {
+      final response = await ApiService.loginUser(
+        emailController.text,
+        passwordController.text,
+      );
+
+      if (response.containsKey("id")) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomeScreen(
+                    userId: response['id'],
+                    isDarkMode: false,
+                    toggleTheme: () {},
+                  )),
+        );
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(response['message'])));
+      }
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: toggleTheme, // Memanggil fungsi toggleTheme
+            icon: Icon(
+              isDarkMode ? Icons.dark_mode : Icons.light_mode,
+            ),
           ),
         ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Login',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () => login(context),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterScreen()),
+                    );
+                  },
+                  child: const Text(
+                    "Don't have an account? Register here.",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
