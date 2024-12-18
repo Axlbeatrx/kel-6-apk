@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   static const String baseUrl =
-      "http://192.168.253.104/kel6_apk/restful_api_php";
+      "http://192.168.115.104/kel6_apk/restful_api_php";
 
   static Future<Map<String, dynamic>> registerUser(
       String name, String email, String password) async {
