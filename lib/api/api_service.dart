@@ -5,6 +5,7 @@ class ApiService {
   static const String baseUrl =
       "http://192.168.115.104/kel6_apk/restful_api_php";
 
+//regis
   static Future<Map<String, dynamic>> registerUser(
       String name, String email, String password) async {
     try {
@@ -14,11 +15,9 @@ class ApiService {
         headers: {"Content-Type": "application/json"},
       );
 
-      // Debugging untuk response HTTP
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
 
-      // Pastikan respons JSON valid
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else {
@@ -30,6 +29,7 @@ class ApiService {
     }
   }
 
+//login
   static Future<Map<String, dynamic>> loginUser(
       String email, String password) async {
     final response = await http.post(
@@ -46,7 +46,7 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-  //create post
+  //create
   static Future<Map<String, dynamic>> addPost(
       int userId, String title, String content) async {
     final response = await http.post(
@@ -62,7 +62,7 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-  // Update post
+  // Update
   static Future<Map<String, dynamic>> updatePost(
       int id, int userId, String title, String content) async {
     final response = await http.put(
@@ -75,7 +75,7 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-// Delete post
+// Delete
   static Future<Map<String, dynamic>> deletePost(int id, int userId) async {
     final response = await http.delete(
       Uri.parse("$baseUrl/api/post/delete.php"),

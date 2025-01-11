@@ -27,6 +27,12 @@ class _HomeScreenState extends State<HomeScreen> {
     postsFuture = ApiService.getPosts();
   }
 
+  Future<void> refreshPosts() async {
+    setState(() {
+      postsFuture = ApiService.getPosts();
+    });
+  }
+
   void addPost() async {
     if (titleController.text.isNotEmpty && contentController.text.isNotEmpty) {
       final response = await ApiService.addPost(
@@ -39,9 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .showSnackBar(SnackBar(content: Text(response['message'])));
 
       if (response['message'] == "Post added successfully") {
-        setState(() {
-          postsFuture = ApiService.getPosts(); // Refresh the posts
-        });
+        refreshPosts(); // Refresh posts
         titleController.clear();
         contentController.clear();
       }
@@ -90,9 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     .showSnackBar(SnackBar(content: Text(response['message'])));
 
                 if (response['message'] == "Post updated successfully") {
-                  setState(() {
-                    postsFuture = ApiService.getPosts();
-                  });
+                  refreshPosts(); // Refresh posts
                 }
                 Navigator.pop(context);
               },
@@ -111,9 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .showSnackBar(SnackBar(content: Text(response['message'])));
 
     if (response['message'] == "Post deleted successfully") {
-      setState(() {
-        postsFuture = ApiService.getPosts(); // Refresh the posts
-      });
+      refreshPosts(); // Refresh posts
     }
   }
 
@@ -122,14 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Home'),
-        actions: [
-          IconButton(
-            onPressed: widget.toggleTheme,
-            icon: Icon(
-              widget.isDarkMode ? Icons.dark_mode : Icons.light_mode,
-            ),
-          ),
-        ],
+        actions: [],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -155,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: addPost,
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(80),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 15),
               ),
@@ -163,65 +156,70 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: FutureBuilder(
-                future: postsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Error: ${snapshot.error}"));
-                  } else {
-                    final posts = snapshot.data as List;
-                    return ListView.builder(
-                      itemCount: posts.length,
-                      itemBuilder: (context, index) {
-                        final post = posts[index];
-                        final isOwner = post['user_id'] == widget.userId;
+              child: RefreshIndicator(
+                onRefresh: refreshPosts, // Pull-to-Refresh function
+                child: FutureBuilder(
+                  future: postsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text("Error: ${snapshot.error}"));
+                    } else {
+                      final posts = snapshot.data as List;
+                      return ListView.builder(
+                        itemCount: posts.length,
+                        itemBuilder: (context, index) {
+                          final post = posts[index];
+                          final isOwner = post['user_id'] == widget.userId;
 
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          elevation: 2,
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            title: Text(post['title']),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(post['content']),
-                                Text(
-                                  "by: ${post['author']}", // Ambil 'author' dari respons API
-                                  style: TextStyle(
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 12),
-                                ), // Tambahkan username
-                              ],
+                          return Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
                             ),
-                            trailing: isOwner
-                                ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit,
-                                            color: Colors.blue),
-                                        onPressed: () =>
-                                            editPost(context, post),
-                                      ),
-                                      IconButton(
-                                        icon: Icon(Icons.delete,
-                                            color: Colors.red),
-                                        onPressed: () => deletePost(post['id']),
-                                      ),
-                                    ],
-                                  )
-                                : null, // Sembunyikan tombol jika bukan pemilik
-                          ),
-                        );
-                      },
-                    );
-                  }
-                },
+                            elevation: 2,
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            child: ListTile(
+                              title: Text(post['title']),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(post['content']),
+                                  Text(
+                                    "by: ${post['author']}",
+                                    style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                              trailing: isOwner
+                                  ? Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(Icons.edit,
+                                              color: Colors.blue),
+                                          onPressed: () =>
+                                              editPost(context, post),
+                                        ),
+                                        IconButton(
+                                          icon: Icon(Icons.delete,
+                                              color: const Color.fromARGB(
+                                                  255, 71, 47, 45)),
+                                          onPressed: () =>
+                                              deletePost(post['id']),
+                                        ),
+                                      ],
+                                    )
+                                  : null,
+                            ),
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ],

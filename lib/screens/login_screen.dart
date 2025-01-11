@@ -46,8 +46,9 @@ class _MyAppState extends State<MyApp> {
   }
 
   void toggleTheme() {
+    print("Toggle theme clicked!");
     setState(() {
-      isDarkMode = !isDarkMode; // Mengubah state tema
+      isDarkMode = !isDarkMode;
     });
   }
 }
@@ -91,14 +92,7 @@ class LoginPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: toggleTheme, // Memanggil fungsi toggleTheme
-            icon: Icon(
-              isDarkMode ? Icons.dark_mode : Icons.light_mode,
-            ),
-          ),
-        ],
+        actions: [],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
