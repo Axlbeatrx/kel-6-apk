@@ -1,6 +1,6 @@
 # kel6_apk
 
-A new Flutter project.
+Gadis Tapana Bela - 10220072
 
 ## Getting Started
 
