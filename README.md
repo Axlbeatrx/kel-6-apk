@@ -1,6 +1,10 @@
 # kel6_apk
 
+Muhammad Filah Fadilah - 10220040
 Gadis Tapana Bela - 10220072
+Axl Beatrix Putra - 10220076
+Elisabet Rifani Tato - 10220057
+Fahrezi Kurnia Dani - 10220095
 
 ## Getting Started
 
